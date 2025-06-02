@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Any, Dict
-from jinja2 import Template, Environment, StrictUndefined, FileSystemLoader, FunctionLoader, TemplateError, meta
+from jinja2 import Template, Environment, StrictUndefined, FileSystemLoader, FunctionLoader, TemplateNotFound, TemplateError, meta
 from supabase import create_client
 from pydantic_settings import BaseSettings
 from functools import lru_cache
@@ -46,9 +46,18 @@ class PromptManager:
     @staticmethod
     def load_template(template_name: str) -> Template:
         """Load a template from either supabase or a local file"""
-        if PromptManager._supabase_client is not None:
-            return PromptManager.load_supabase_template(template_name)
-        return PromptManager.load_local_template(template_name)
+        try:
+            if PromptManager._supabase_client is not None:
+                return PromptManager.load_supabase_template(template_name)
+            return PromptManager.load_local_template(template_name)
+        except TemplateError as e:
+            raise ValueError(f"Error loading template '{template_name}': {e}")
+        except FileNotFoundError as e:
+            raise ValueError(f"Template file '{template_name}' not found: {e}")
+        except TemplateNotFound:
+            raise ValueError(f"Template '{template_name}' not found in the configured template paths.")
+        except Exception as e:
+            raise ValueError(f"An unexpected error occurred while loading template '{template_name}': {e}")
     
     @staticmethod
     @lru_cache(maxsize=32)
@@ -94,6 +103,6 @@ class PromptManager:
         }
 
     @staticmethod
-    def render_template(template: Template, context: dict) -> str:
+    def render(template: Template, context: dict) -> str:
         """Render a Jinja2 template with a given context."""
         return template.render(**context)
