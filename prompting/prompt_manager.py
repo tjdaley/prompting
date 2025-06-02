@@ -60,7 +60,7 @@ class PromptManager:
         template_data = frontmatter.loads(source)
         tmpl = env.from_string(template_data.content)
         tmpl.meta = template_data.metadata
-        tmpl.setattr('source', source)
+        setattr(tmpl, 'source', source)
         return tmpl
 
     @staticmethod
@@ -78,7 +78,7 @@ class PromptManager:
                 "description": response.data.get("description", "No description provided"),
                 "author": response.data.get("author", "Unknown"),
             }
-            tmpl.setattr('source', template_content)
+            setattr(tmpl, 'source', template_content)
             return tmpl
         raise ValueError(f"Template '{template_name}' not found in Supabase")
 
