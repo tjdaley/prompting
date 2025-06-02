@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prompting"
-version = "0.1.0"
+version = "0.1.1"
 description = "Unified template loader for local and Supabase-stored Jinja2 templates"
 authors = [{ name="Thomas J. Daley", email="dev@jdbot.us" }]
 requires-python = ">=3.10"
 dependencies = [
     "jinja2",
-    "pydantic",
+    "pydantic-settings",
     "python-frontmatter",
     "supabase"
 ]

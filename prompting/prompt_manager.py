@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, Dict
 from jinja2 import Template, Environment, StrictUndefined, FileSystemLoader, FunctionLoader, TemplateError, meta
 from supabase import create_client
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from functools import lru_cache
 import frontmatter
 import os
