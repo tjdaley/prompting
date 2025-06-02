@@ -70,7 +70,7 @@ Hello {{ name }}! Welcome to the platform.
 from prompting import PromptManager
 
 template = PromptManager.load_template("welcome")
-output = PromptManager.render_template(template, {"name": "Tom"})
+output = PromptManager.render(template, {"name": "Tom"})
 print(output)
 ```
 
@@ -98,7 +98,7 @@ Your Supabase table should be named `prompts` with at least these columns:
 from prompt_manager import PromptManager
 
 template = PromptManager.load_template("welcome")
-output = PromptManager.render_template(template, {"name": "Tom"})
+output = PromptManager.render(template, {"name": "Tom"})
 print(output)
 ```
 
@@ -123,3 +123,7 @@ print(info)
 
 MIT License © [Tom Daley](https://github.com/tjdaley)
 
+## Author
+
+Thomas J. Daley is a board certified Texas Family Law Litigation attorney and AI enthusiast.
+[BLOG](https://www.thomasjdaley.com) * [LINKEDIN](https://www.linkedin.com/in/tomdaley/) * [LAW FIRM](https://koonsfuller.com/attorneys/tom-daley)
