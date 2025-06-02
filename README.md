@@ -74,6 +74,8 @@ output = PromptManager.render_template(template, {"name": "Tom"})
 print(output)
 ```
 
+ **NOTE:** The Load_template() methods adds a *source* property to the returned object.
+
 ---
 
 ## 🌐 Supabase Storage
