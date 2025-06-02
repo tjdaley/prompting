@@ -67,7 +67,7 @@ Hello {{ name }}! Welcome to the platform.
 **Usage:**
 
 ```python
-from prompt_manager import PromptManager
+from prompting import PromptManager
 
 template = PromptManager.load_template("welcome")
 output = PromptManager.render_template(template, {"name": "Tom"})
