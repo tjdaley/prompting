@@ -1,0 +1,65 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# 🧪 PromptManager Demo\n",
+    "This notebook demonstrates how to load and render templates using PromptManager.\n",
+    "\n",
+    "- No configuration required for local templates.\n",
+    "- Works seamlessly with Supabase if credentials are present in `.prompting_env`.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "from prompt_manager import PromptManager\n",
+    "from pathlib import Path\n",
+    "\n",
+    "# Create a local test template\n",
+    "Path(\"prompts/templates\").mkdir(parents=True, exist_ok=True)\n",
+    "Path(\"prompts/templates/welcome.j2\").write_text(\"\"\"---\ndescription: Welcome message for new users\nauthor: NotebookUser\n---\nHello {{ name }}! Welcome to our app.\"\"\")"
+   ],
+   "execution_count": null,
+   "outputs": []
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "# Load and render the template\n",
+    "template = PromptManager.load_template(\"welcome\")\n",
+    "output = PromptManager.render_template(template, {\"name\": \"Tom\"})\n",
+    "print(output)"
+   ],
+   "execution_count": null,
+   "outputs": []
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "# See extracted metadata and variables\n",
+    "info = PromptManager.template_info(template)\n",
+    "info"
+   ],
+   "execution_count": null,
+   "outputs": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python",
+   "version": ""
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
