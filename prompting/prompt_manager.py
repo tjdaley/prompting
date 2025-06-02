@@ -26,7 +26,7 @@ class PromptManager:
         _supabase_client = create_client(_settings.supabase_url, _settings.supabase_key)
 
     if _supabase_client is None:
-        template_dir = Path(__file__).parent.parent / _settings.template_path
+        template_dir = Path.cwd() / _settings.template_path
         _jinja_environment = Environment(
             loader=FileSystemLoader(template_dir),
             undefined=StrictUndefined
