@@ -49,7 +49,7 @@ class PromptManager:
         if PromptManager._supabase_client is not None:
             return PromptManager.load_supabase_template(template_name)
         return PromptManager.load_local_template(template_name)
-
+    
     @staticmethod
     @lru_cache(maxsize=32)
     def load_local_template(path: str) -> Template:
@@ -60,6 +60,7 @@ class PromptManager:
         template_data = frontmatter.loads(source)
         tmpl = env.from_string(template_data.content)
         tmpl.meta = template_data.metadata
+        tmpl.source = property(lambda self: source)
         return tmpl
 
     @staticmethod
@@ -77,6 +78,7 @@ class PromptManager:
                 "description": response.data.get("description", "No description provided"),
                 "author": response.data.get("author", "Unknown"),
             }
+            tmpl.source = property(lambda self: template_content)
             return tmpl
         raise ValueError(f"Template '{template_name}' not found in Supabase")
 
