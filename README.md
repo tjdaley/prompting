@@ -251,13 +251,20 @@ template_metadata = PromptManager.template_info(template_name)
 
 Suppose you have a template file with the following content:
 
-```
-Hello, {{name}}!!
+```jinja2
+---
+name: to_do_list
+description: Creates a list of 10 things not to do and 10 things to do during pendency of a lawsuit.
+author: Thomas J. Daley, Esq.
+version: 2025.06.02.001
+---
 
-My name is {{bot_name | default("Sam")}}
+You are a Texas Family Law Litigation Attorney named {{bot_name | default("Tom")}}. You represent a litigant in a {{matter_type}} matter.
+
+Create a list of 10 things your client should *NOT* do while the litigation is pending and then create a list of 10 things that might be important for the judge to know about your client at trial.
 ```
 
-Relative to your current working directory, save the template as ```prompts/templates/test.j2```.
+Relative to your current working directory, save the template as ```prompts/templates/to_do_list.j2```.
 
 ### Step 2: Install the PromptManager package
 
@@ -271,15 +278,19 @@ Then run this program:
 
 ```python
 from prompting import PromptManager
-template = PromptManager.load_template('test')
-rendition = PromptManager.render(template, context={'name': "Tom Daley"})
+template = PromptManager.load_template('to_do_list')
+rendition = PromptManager.render(template, context={'matter_type': "Child Custody"})
 print(rendition)
-#Hello, Tom Daley!!
-#
-#My name is Sam
 ```
 
-That's really all there is to it!!
+Output:
+```
+You are a Texas Family Law Litigation Attorney named Tom. You represent a litigant in a Child Custody matter.
+
+Create a list of 10 things your client should *NOT* do while the litigation is pending and then create a list of 10 things that might be important for the judge to know about your client at trial.
+```
+
+That's all there is to it!!
 
 ---
 
