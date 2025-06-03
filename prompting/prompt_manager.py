@@ -1,7 +1,7 @@
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Union
 from jinja2 import Template, Environment, StrictUndefined, FileSystemLoader, FunctionLoader, TemplateNotFound, TemplateError, meta
-from supabase import create_client
+from supabase import create_client, Client
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 import frontmatter
@@ -12,6 +12,8 @@ class PromptSettings(BaseSettings):
     supabase_url: str | None = None
     supabase_key: str | None = None
     template_path: str = 'prompts/templates'
+    use_cache: bool = True
+    
 
     class Config:
         env_file = ".prompting_env"
@@ -19,7 +21,7 @@ class PromptSettings(BaseSettings):
 
 class PromptManager:
     _settings = PromptSettings()
-    _supabase_client = None
+    _supabase_client: Union[Client, None] = None
     _jinja_environment = None
 
     if _settings.supabase_url and _settings.supabase_key:
@@ -61,8 +63,11 @@ class PromptManager:
     
     @staticmethod
     @lru_cache(maxsize=32)
-    def load_local_template(path: str) -> Template:
+    def _cached_load_local_template(path: str) -> Template:
         """Read a template file from the local file system."""
+        return PromptManager._load_local_template(path)
+
+    def _load_local_template(path: str) -> Template:
         env = PromptManager._jinja_environment
         template_path = f"{path}.j2"
         source, filename, _ = env.loader.get_source(env, template_path)
@@ -71,11 +76,21 @@ class PromptManager:
         tmpl.meta = template_data.metadata
         setattr(tmpl, 'source', source)
         return tmpl
+    
+    def load_local_template(template_name: str) -> Template:
+        """Load a template from the local file system."""
+        if PromptManager.use_cache:
+            return PromptManager._cached_load_local_template(template_name)
+        return PromptManager._load_local_template(template_name)
 
     @staticmethod
     @lru_cache(maxsize=32)
-    def load_supabase_template(template_name: str) -> Template:
+    def _cached_load_supabase_template(template_name: str) -> Template:
         """Fetch a template string from Supabase by name, with caching."""
+        return PromptManager._load_supabase_template(template_name)
+    
+    @staticmethod
+    def _load_supabase_template(template_name: str) -> Template:  
         if PromptManager._supabase_client is None:
             raise RuntimeError("Supabase client is not configured. Cannot load template from Supabase.")
         response = PromptManager._supabase_client.table("prompts").select("content, description, author").eq("name", template_name).single().execute()
@@ -90,6 +105,13 @@ class PromptManager:
             setattr(tmpl, 'source', template_content)
             return tmpl
         raise ValueError(f"Template '{template_name}' not found in Supabase")
+    
+    @staticmethod
+    def load_supabase_template(template_name: str) -> Template:
+        """Load a template from Supabase."""
+        if PromptManager.use_cache:
+            return PromptManager._cached_load_supabase_template(template_name)
+        return PromptManager._load_supabase_template(template_name)
 
     @staticmethod
     def template_info(template: Template) -> Dict[str, Any]:
@@ -106,3 +128,8 @@ class PromptManager:
     def render(template: Template, context: dict) -> str:
         """Render a Jinja2 template with a given context."""
         return template.render(**context)
+
+    @staticmethod
+    def clear_cache():
+        PromptManager.load_local_template.cache_clear()
+        PromptManager.load_supabase_template.cache_clear()
