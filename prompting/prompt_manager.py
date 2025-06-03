@@ -23,6 +23,7 @@ class PromptManager:
     _settings = PromptSettings()
     _supabase_client: Union[Client, None] = None
     _jinja_environment = None
+    _use_cache = _settings.use_cache
 
     if _settings.supabase_url and _settings.supabase_key:
         _supabase_client = create_client(_settings.supabase_url, _settings.supabase_key)
@@ -79,7 +80,7 @@ class PromptManager:
     
     def load_local_template(template_name: str) -> Template:
         """Load a template from the local file system."""
-        if PromptManager.use_cache:
+        if PromptManager._use_cache:
             return PromptManager._cached_load_local_template(template_name)
         return PromptManager._load_local_template(template_name)
 
@@ -109,7 +110,7 @@ class PromptManager:
     @staticmethod
     def load_supabase_template(template_name: str) -> Template:
         """Load a template from Supabase."""
-        if PromptManager.use_cache:
+        if PromptManager._use_cache:
             return PromptManager._cached_load_supabase_template(template_name)
         return PromptManager._load_supabase_template(template_name)
 
