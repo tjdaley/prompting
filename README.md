@@ -249,6 +249,44 @@ USE_CACHE=False
 
 ---
 
+## Minimal Working Example
+
+### Step 1: Create your template
+
+Suppose you have a template file with the following content:
+
+```
+Hello, {{name}}!!
+
+My name is {{bot_name | default("Sam")}}
+```
+
+Relative to your current working directory, save the template as ```prompts/templates/test.j2```.
+
+### Step 2: Install the PromptManager package
+
+```bash
+pip install git+https://github.com/tjdaley/prompting.git
+```
+
+### Step 3: Minimal Working Example
+
+Then run this program:
+
+```python
+from prompting import PromptManager
+template = PromptManager.load_template('test')
+rendition = PromptManager.render(template, context={'name': "Tom Daley"})
+print(rendition)
+#Hello, Tom Daley!!
+#
+#My name is Sam
+```
+
+That's really all there is to it!!
+
+---
+
 ## 🧰 License
 
 MIT License © [Tom Daley](https://github.com/tjdaley)
