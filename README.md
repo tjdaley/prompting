@@ -245,11 +245,6 @@ template_metadata = PromptManager.template_info(template_name)
 
 ---
 
-## Environment Variables and Sample Config File
-
-
----
-
 ## Minimal Working Example
 
 ### Step 1: Create your template
