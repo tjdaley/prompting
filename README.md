@@ -121,7 +121,8 @@ print(info)
 
 ## API Reference
 
-**.clear_cache()**
+### **.clear_cache()**
+
 *Clear the LRU cache of retrieved templates.*
 
 *Args*: None
@@ -133,7 +134,8 @@ print(info)
 *Throws*: Hopefully None
 
 
-**.get_supabase_client()**
+### **.get_supabase_client()**
+
 *Retrieve the Supabase client object.*
 
 *Args*: None
@@ -148,7 +150,8 @@ print(info)
 
 You should never have to access this method, but it's here in case you need to test your Supabase connection.
 
-**.load_template(template_name: str)**
+### **.load_template(template_name: str)**
+
 *Load a template from either the file system or the database, depending on configuration.*
 
 *Args*:
@@ -167,7 +170,8 @@ You should never have to access this method, but it's here in case you need to t
 
 This method will call .load_local_template() or .load_supabase_template() based on whether the Supabase environment variables are set. Note that the underlying load_local_template() and load_supabase_template() will add a ```source``` property to the Template object. The ```source``` property contains the source string of the template.
 
-**.template_info(template: Template)**
+## **.template_info(template: Template)**
+
 *Return template metadata.*
 
 *Args*:
@@ -202,7 +206,8 @@ template_name = 'test'
 template_metadata = PromptManager.template_info(template_name)
 ```
 
-**.render(template: Template, context: Dict[str, Any])**
+### **.render(template: Template, context: Dict[str, Any])**
+
 *Render a template using the name/value pairs in the context argument.*
 
 *Args*:
@@ -221,7 +226,7 @@ template_metadata = PromptManager.template_info(template_name)
 
 If you are using local file storage for your prompt templates, you do not need a configuration file as the default values will look for templates in ```prompts/templates``` and enable the LRU cache.
 
-You only need to define environment variables if you want to override the behavior.
+You only need to define environment variables if you want to override this behavior.
 
 The *env* file for these values is ```.prompting_env``` and must be in the folder from which you start your app.
 
