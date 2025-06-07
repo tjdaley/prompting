@@ -35,7 +35,7 @@ pip install git+https://github.com/tjdaley/prompting.git
 Create a `.prompting_env` file in the root of your project (or wherever your Python process starts) with the following variables:
 
 ```env
-# Optional if using only local templates
+# Not required if using only local templates
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your-anon-or-service-role-key
 
@@ -53,15 +53,15 @@ Place your templates in the directory specified by `template_path` (default is `
 
 Templates must use `.j2` extension and may include [YAML frontmatter](https://jekyllrb.com/docs/front-matter/) metadata.
 
-**Example: `prompts/templates/welcome.j2`**
+**Example: `prompts/templates/us_state_prompt.j2`**
 
 ```jinja
 ---
-description: Welcome message for new users
+description: Request name of the capital city of a U.S. State
 author: Tom Daley
 ---
 
-Hello {{ name }}! Welcome to the platform.
+What is the capital of {{us_state}}?
 ```
 
 **Usage:**
@@ -69,8 +69,8 @@ Hello {{ name }}! Welcome to the platform.
 ```python
 from prompting import PromptManager
 
-template = PromptManager.load_template("welcome")
-output = PromptManager.render(template, {"name": "Tom"})
+template = PromptManager.load_template("us_state_prompt")
+output = PromptManager.render(template, {"us_state": "TX"})
 print(output)
 ```
 
@@ -90,15 +90,15 @@ Your Supabase table should be named `prompts` with at least these columns:
 
 | name    | content             | description     | author    |
 | ------- | ------------------- | --------------- | --------- |
-| welcome | `Hello {{ name }}!` | Welcome message | Tom Daley |
+| us_state_prompt | `What is the capital of the following U.S. State: {{us_state}}` | Request the name of the capital city of a U.S. State | Tom Daley |
 
 **Usage:**
 
 ```python
 from prompt_manager import PromptManager
 
-template = PromptManager.load_template("welcome")
-output = PromptManager.render(template, {"name": "Tom"})
+template = PromptManager.load_template("us_state_prompt")
+output = PromptManager.render(template, {"us_state": "TX"})
 print(output)
 ```
 
@@ -111,9 +111,9 @@ info = PromptManager.template_info(template)
 print(info)
 # {
 #     'name': None,
-#     'description': 'Welcome message for new users',
+#     'description': 'Request the name of the capital cit of a U.S. State',
 #     'author': 'Tom Daley',
-#     'variables': {'name'}
+#     'variables': {'us_state'}
 # }
 ```
 
@@ -256,9 +256,7 @@ USE_CACHE=False
 Suppose you have a template file with the following content:
 
 ```
-Hello, {{name}}!!
-
-My name is {{bot_name | default("Sam")}}
+What is the name of the capital city of the following U.S. State? {{us_state | default('TX')}}
 ```
 
 Relative to your current working directory, save the template as ```prompts/templates/test.j2```.
@@ -276,11 +274,9 @@ Then run this program:
 ```python
 from prompting import PromptManager
 template = PromptManager.load_template('test')
-rendition = PromptManager.render(template, context={'name': "Tom Daley"})
+rendition = PromptManager.render(template, context={'us_state': "AK"})
 print(rendition)
-#Hello, Tom Daley!!
-#
-#My name is Sam
+# What is the name of the capital city of the following U.S. State? AK
 ```
 
 That's really all there is to it!!
