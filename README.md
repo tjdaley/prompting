@@ -45,6 +45,29 @@ TEMPLATE_PATH=prompts/templates
 
 If `SUPABASE_URL` and `SUPABASE_KEY` are omitted or empty, PromptManager will default to local file loading.
 
+If you are using local file storage for your prompt templates, you do not need a configuration file as the default values will look for templates in ```prompts/templates``` and enable the LRU cache.
+
+You only need to define environment variables if you want to override this behavior.
+
+The *env* file for these values is ```.prompting_env``` and must be in the folder from which you start your app.
+
+Variable Name | Description | Default
+---|---|---
+SUPABASE_KEY | API key provided by Supabase. If set to None, local file storage is used. | None
+SUPABASE_URL | URL provided by Supabase. If set to None, local file storage is used | NoneNone
+TEMPLATE_PATH | Path, relative to CWD, where local template files are stored. | prompts/templates
+USE_CACHE | Determines whether template loading uses an LRU cache to improve performance. | True
+
+The following configuration will look for templates in the Supabase database because both Supabase variables are defined and will *not* use the LRU cache.
+
+```
+# .prompting_env
+SUPABASE_KEY=api_key_provided_by_supabase
+SUPABASE_URL=https://url_provided_by_supabase
+TEMPLATE_PATH=app/prompts/templates
+USE_CACHE=False  # Good for testing versions of prompt templates. Bad for production performance.
+```
+
 ---
 
 ## 📁 Local File Storage
@@ -74,7 +97,7 @@ output = PromptManager.render(template, {"us_state": "TX"})
 print(output)
 ```
 
- **NOTE:** The Load_template() methods adds a *source* property to the returned object.
+ **NOTE:** The ```load_template()``` methods adds a *source* property to the returned object.
 
 ---
 
@@ -155,7 +178,7 @@ You should never have to access this method, but it's here in case you need to t
 *Load a template from either the file system or the database, depending on configuration.*
 
 *Args*:
-- *template_name*: str - The name of the template to load. If the Supabase parameters are configured, then this is the value of the 'name' field in the database. If file system storage is being this is the name of the template file **without an extension**. The ".j2" extension will be added.
+- *template_name*: str - The name of the template to load. If the Supabase parameters are configured, then this is the value of the 'name' field in the database. If file system storage is being used, this is the name of the template file **without an extension**. The ".j2" extension will be added.
 
 *Environment variables*:
 - USE_CACHE - Boolean specifying whether the LRU cache is to be used. Default is True, which is a good setting for production. If you're experimenting with forms of your prompts in development, maybe set it to False so that the latest version of your prompt is picked up each time.
@@ -168,7 +191,7 @@ You should never have to access this method, but it's here in case you need to t
 - *FileNotFoundError* - If the template is not found in the file system.
 - *TemplateNotFoundError* - If the jinja2 template loader throws an error trying to find the template.
 
-This method will call .load_local_template() or .load_supabase_template() based on whether the Supabase environment variables are set. Note that the underlying load_local_template() and load_supabase_template() will add a ```source``` property to the Template object. The ```source``` property contains the source string of the template.
+This method will call .load_local_template() or .load_supabase_template() based on whether the Supabase environment variables are set. Note that the underlying load_local_template() and load_supabase_template() will add a ```source``` property to the Template object. The ```source``` property contains the source of the template as a string.
 
 ## **.template_info(template: Template)**
 
@@ -181,9 +204,9 @@ This method will call .load_local_template() or .load_supabase_template() based 
 
 *Returns*: Dict[Str, Any] with the following keys:
 - name: Template name
-- description: Template desription if provided in the front matter OR defined in the database.
+- description: Template description if provided in the front matter OR defined in the database.
 - author: Author of the template
-- variables: List of variable defined in the template.
+- variables: List of variables defined in the template.
 
 *Throws*: None
 
@@ -222,44 +245,26 @@ template_metadata = PromptManager.template_info(template_name)
 
 ---
 
-## Environment Variables and Sample Config File
-
-If you are using local file storage for your prompt templates, you do not need a configuration file as the default values will look for templates in ```prompts/templates``` and enable the LRU cache.
-
-You only need to define environment variables if you want to override this behavior.
-
-The *env* file for these values is ```.prompting_env``` and must be in the folder from which you start your app.
-
-Variable Name | Description | Default
----|---|---
-SUPABASE_KEY | API key provided by Supabase. If set to None, local file storage is used. | None
-SUPABASE_URL | URL provided by Supabase. If set to None, local file storage is used | NoneNone
-TEMPLATE_PATH | Path, relative to CWD, where local template files are stored. | prompts/templates
-USE_CACHE | Determines whether template loading uses an LRU cache to improve performance. | True
-
-
-The following configuration will look for templates in the Supabase database because both Supabase variables are defined and will *not* use the LRU cache.
-
-```
-SUPABASE_KEY=api_key_provided_by_supabase
-SUPABASE_URL=https://url_provided_by_supabase
-TEMPLATE_PATH=app/prompts/templates
-USE_CACHE=False
-```
-
----
-
 ## Minimal Working Example
 
 ### Step 1: Create your template
 
 Suppose you have a template file with the following content:
 
-```
-What is the name of the capital city of the following U.S. State? {{us_state | default('TX')}}
+```jinja2
+---
+name: to_do_list
+description: Creates a list of 10 things not to do and 10 things to do during pendency of a lawsuit.
+author: Thomas J. Daley, Esq.
+version: 2025.06.02.001
+---
+
+You are a Texas Family Law Litigation Attorney named {{bot_name | default("Tom")}}. You represent a litigant in a {{matter_type}} matter.
+
+Create a list of 10 things your client should *NOT* do while the litigation is pending and then create a list of 10 things that might be important for the judge to know about your client at trial.
 ```
 
-Relative to your current working directory, save the template as ```prompts/templates/test.j2```.
+Relative to your current working directory, save the template as ```prompts/templates/to_do_list.j2```.
 
 ### Step 2: Install the PromptManager package
 
@@ -273,13 +278,19 @@ Then run this program:
 
 ```python
 from prompting import PromptManager
-template = PromptManager.load_template('test')
-rendition = PromptManager.render(template, context={'us_state': "AK"})
+template = PromptManager.load_template('to_do_list')
+rendition = PromptManager.render(template, context={'matter_type': "Child Custody"})
 print(rendition)
-# What is the name of the capital city of the following U.S. State? AK
 ```
 
-That's really all there is to it!!
+Output:
+```
+You are a Texas Family Law Litigation Attorney named Tom. You represent a litigant in a Child Custody matter.
+
+Create a list of 10 things your client should *NOT* do while the litigation is pending and then create a list of 10 things that might be important for the judge to know about your client at trial.
+```
+
+That's all there is to it!!
 
 ---
 
