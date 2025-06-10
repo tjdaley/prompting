@@ -25,7 +25,7 @@ class PromptManager:
     _jinja_environment: Union[Environment, None] = None
     _use_cache = _settings.use_cache
 
-    if _settings.supabase_url and _settings.supabase_key and _settings.forced_source <> 'local':
+    if _settings.supabase_url and _settings.supabase_key and _settings.forced_source != 'local':
         _supabase_client = create_client(_settings.supabase_url, _settings.supabase_key) # type: ignore
 
     if _supabase_client is None:
