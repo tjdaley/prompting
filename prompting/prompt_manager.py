@@ -17,7 +17,7 @@ class PromptSettings(BaseSettings):
 
     class Config:
         env_file = ".prompting_env"
-
+        extra = "forbid"
 
 class PromptManager:
     _settings = PromptSettings()
