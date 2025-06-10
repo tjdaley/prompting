@@ -12,6 +12,7 @@ class PromptSettings(BaseSettings):
     supabase_key: str | None = None
     template_path: str = 'prompts/templates'
     use_cache: bool = True
+    forced_source: str = ''
     
 
     class Config:
@@ -24,7 +25,7 @@ class PromptManager:
     _jinja_environment: Union[Environment, None] = None
     _use_cache = _settings.use_cache
 
-    if _settings.supabase_url and _settings.supabase_key:
+    if _settings.supabase_url and _settings.supabase_key and _settings.forced_source <> 'local':
         _supabase_client = create_client(_settings.supabase_url, _settings.supabase_key) # type: ignore
 
     if _supabase_client is None:
