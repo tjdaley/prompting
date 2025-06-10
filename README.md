@@ -54,9 +54,10 @@ The *env* file for these values is ```.prompting_env``` and must be in the folde
 Variable Name | Description | Default
 ---|---|---
 SUPABASE_KEY | API key provided by Supabase. If set to None, local file storage is used. | None
-SUPABASE_URL | URL provided by Supabase. If set to None, local file storage is used | NoneNone
+SUPABASE_URL | URL provided by Supabase. If set to None, local file storage is used | None
 TEMPLATE_PATH | Path, relative to CWD, where local template files are stored. | prompts/templates
 USE_CACHE | Determines whether template loading uses an LRU cache to improve performance. | True
+FORCE_SOURCE | Can force the template source to be local even if Supabase connection parameters are available. Set to "local" to force local template loading. | ''
 
 The following configuration will look for templates in the Supabase database because both Supabase variables are defined and will *not* use the LRU cache.
 
