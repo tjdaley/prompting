@@ -101,7 +101,7 @@ class PromptManager:
         if PromptManager._supabase_client is None:
             raise RuntimeError("Supabase client is not configured. Cannot load template from Supabase.")
         response = PromptManager._supabase_client.table("prompts").select("content, description, author").eq("id", template_name).single().execute()
-        if "data" in response and response.data: # type: ignore
+        if response.data: # type: ignore
             env = PromptManager._jinja_environment
             template_content = response.data["content"]
             tmpl = env.from_string(template_content)
@@ -111,7 +111,7 @@ class PromptManager:
             }
             setattr(tmpl, 'source', template_content)
             return tmpl
-        raise ValueError(f"Template '{template_name}' not found in Supabase")
+        raise ValueError("Template '%s' not found in Supabase", template_name)
     
     @staticmethod
     def load_supabase_template(template_name: str) -> Template:
