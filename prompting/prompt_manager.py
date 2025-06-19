@@ -100,7 +100,7 @@ class PromptManager:
         assert PromptManager._jinja_environment is not None, "Jinja environment is not properly initialized."
         if PromptManager._supabase_client is None:
             raise RuntimeError("Supabase client is not configured. Cannot load template from Supabase.")
-        response = PromptManager._supabase_client.table("prompts").select("content, description, author").eq("id", template_name).single().execute()
+        response = PromptManager._supabase_client.table("prompts").select("content, description, author, system_prompt").eq("id", template_name).single().execute()
         if response.data: # type: ignore
             env = PromptManager._jinja_environment
             template_content = response.data["content"]
@@ -108,8 +108,10 @@ class PromptManager:
             tmpl.meta = { # type: ignore
                 "description": response.data.get("description", "No description provided"),
                 "author": response.data.get("author", "Unknown"),
+                "system_prompt": response.data.get("system_prompt", "")
             }
             setattr(tmpl, 'source', template_content)
+            setattr(tmpl, 'system_prompt', response.data.get('system_prompt', ''))
             return tmpl
         raise ValueError("Template '%s' not found in Supabase", template_name)
     
